@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My First Sudoku</title>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(9, 40px);
+            gap: 1px;
+            background-color: black;
+            padding: 1px;
+            width: fit-content;
+        }
+        .cell {
+            background-color: white;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="sudoku" class="grid"></div>
+
+    <script>
+        // This function creates our grid and fills it with numbers
+        function createGrid() {
+            const grid = document.getElementById('sudoku');
+            
+            // Create 81 cells (9x9)
+            for (let i = 0; i < 81; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                // This will repeat 1-9 nine times
+                cell.textContent = (i % 9) + 1;
+                grid.appendChild(cell);
+            }
+        }
+
+        // Call our function when the page loads
+        createGrid();
+    </script>
+</body>
+</html>
