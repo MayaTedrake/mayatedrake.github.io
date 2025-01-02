@@ -30,12 +30,33 @@
             const grid = document.getElementById('sudoku');
             
             // Create 81 cells (9x9)
-            for (let i = 0; i < 81; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                // This will repeat 1-9 nine times
-                cell.textContent = (i % 9) + 1;
-                grid.appendChild(cell);
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    // This will fill each cell with 1-9
+                    // Get numbers already used in this row and column
+                    let usedNumbers = new Set();
+                    for (let i = 0; i < 9; i++) {
+                        // Check row
+                        const rowCell = grid.children[row * 9 + i];
+                        if (rowCell) usedNumbers.add(Number(rowCell.textContent));
+                        // Check column 
+                        const colCell = grid.children[i * 9 + col];
+                        if (colCell) usedNumbers.add(Number(colCell.textContent));
+                    }
+                    
+                    // Find available numbers
+                    let availableNums = [];
+                    for (let n = 1; n <= 9; n++) {
+                        if (!usedNumbers.has(n)) availableNums.push(n);
+                    }
+                    
+                    // Pick random available number, or leave empty if none available
+                    cell.textContent = availableNums.length > 0 ? 
+                        availableNums[Math.floor(Math.random() * availableNums.length)] : '';
+                    grid.appendChild(cell);
+                }
             }
         }
 
