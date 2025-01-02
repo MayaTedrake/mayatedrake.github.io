@@ -45,7 +45,26 @@
                     for (let col = 0; col < 9; col++) {
                         const cell = document.createElement('div');
                         cell.className = 'cell';
-                        
+                        // Add bold border for 3x3 boxes and outside border
+                        if (row % 3 === 2 && row < 8) {
+                            cell.style.borderBottom = '3px solid black';
+                        }
+                        if (col % 3 === 2 && col < 8) {
+                            cell.style.borderRight = '3px solid black';
+                        }
+                        // Add bold outside border
+                        if (row === 0) {
+                            cell.style.borderTop = '3px solid black';
+                        }
+                        if (row === 8) {
+                            cell.style.borderBottom = '3px solid black';
+                        }
+                        if (col === 0) {
+                            cell.style.borderLeft = '3px solid black';
+                        }
+                        if (col === 8) {
+                            cell.style.borderRight = '3px solid black';
+                        }
                         // Get numbers already used in this row and column
                         let usedNumbers = new Set();
                         for (let i = 0; i < 9; i++) {
