@@ -25,43 +25,79 @@
     <div id="sudoku" class="grid"></div>
 
     <script>
+
         // This function creates our grid and fills it with numbers
         function createGrid() {
             const grid = document.getElementById('sudoku');
+            let attempts = 0;
+            const maxAttempts = 1000; // Prevent infinite loops
             
-            // Create 81 cells (9x9)
-            for (let row = 0; row < 9; row++) {
-                for (let col = 0; col < 9; col++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    // This will fill each cell with 1-9
-                    // Get numbers already used in this row and column
-                    let usedNumbers = new Set();
-                    for (let i = 0; i < 9; i++) {
-                        // Check row
-                        const rowCell = grid.children[row * 9 + i];
-                        if (rowCell) usedNumbers.add(Number(rowCell.textContent));
-                        // Check column 
-                        const colCell = grid.children[i * 9 + col];
-                        if (colCell) usedNumbers.add(Number(colCell.textContent));
+            function tryFillGrid() {
+                // Clear the grid
+                grid.innerHTML = '';
+                attempts++;
+                
+                // Track if we successfully filled all cells
+                let success = true;
+                
+                // Create 81 cells (9x9)
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        
+                        // Get numbers already used in this row and column
+                        let usedNumbers = new Set();
+                        for (let i = 0; i < 9; i++) {
+                            // Check row
+                            const rowCell = grid.children[row * 9 + i];
+                            if (rowCell) usedNumbers.add(Number(rowCell.textContent));
+                            // Check column 
+                            const colCell = grid.children[i * 9 + col];
+                            if (colCell) usedNumbers.add(Number(colCell.textContent));
+                            // Check 3x3 box
+                            const boxStartRow = Math.floor(row / 3) * 3;
+                            const boxStartCol = Math.floor(col / 3) * 3;
+                            for (let i = 0; i < 3; i++) {
+                                for (let j = 0; j < 3; j++) {
+                                    const boxCell = grid.children[(boxStartRow + i) * 9 + (boxStartCol + j)];
+                                    if (boxCell) usedNumbers.add(Number(boxCell.textContent));
+                                }
+                            }
+                        }
+                        
+                        // Find available numbers
+                        let availableNums = [];
+                        for (let n = 1; n <= 9; n++) {
+                            if (!usedNumbers.has(n)) availableNums.push(n);
+                        }
+                        
+                        // If no numbers available, mark as failed attempt
+                        if (availableNums.length === 0) {
+                            success = false;
+                        }
+                        
+                        // Pick random available number
+                        cell.textContent = availableNums.length > 0 ? 
+                            availableNums[Math.floor(Math.random() * availableNums.length)] : '';
+                        grid.appendChild(cell);
                     }
-                    
-                    // Find available numbers
-                    let availableNums = [];
-                    for (let n = 1; n <= 9; n++) {
-                        if (!usedNumbers.has(n)) availableNums.push(n);
-                    }
-                    
-                    // Pick random available number, or leave empty if none available
-                    cell.textContent = availableNums.length > 0 ? 
-                        availableNums[Math.floor(Math.random() * availableNums.length)] : '';
-                    grid.appendChild(cell);
                 }
+                
+                return success;
+            }
+            
+            // Keep trying until we succeed or hit max attempts
+            while (!tryFillGrid() && attempts < maxAttempts) {
+                // Keep trying
+            }
+            
+            if (attempts >= maxAttempts) {
+                document.body.innerHTML = "Could not generate valid grid after " + maxAttempts + " attempts";
             }
         }
 
         // Call our function when the page loads
-        createGrid();
-    </script>
+        createGrid();    </script>
 </body>
 </html>
