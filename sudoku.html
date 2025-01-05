@@ -148,6 +148,37 @@
         // Call after grid creation
         setTimeout(hideRandomCells, 100);
         
+        // Add auto check button
+        const autoCheckButton = document.createElement('button');
+        autoCheckButton.textContent = 'Toggle Auto Check';
+        autoCheckButton.style.display = 'block';
+        autoCheckButton.style.margin = '20px auto';
+        document.body.appendChild(autoCheckButton);
+
+        let autoCheckEnabled = false;
+
+        autoCheckButton.addEventListener('click', () => {
+            autoCheckEnabled = !autoCheckEnabled;
+            autoCheckButton.style.backgroundColor = autoCheckEnabled ? '#ffcccc' : '';
+            autoCheckButton.textContent = autoCheckEnabled ? 'Auto Check ON' : 'Toggle Auto Check';
+        });
+
+        document.querySelectorAll('.cell').forEach((cell, index) => {
+            cell.addEventListener('input', () => {
+                if (autoCheckEnabled) {
+                    if (cell.textContent === '') {
+                        cell.style.backgroundColor = 'white';
+                        cell.style.color = 'black';
+                    } else if (cell.textContent === solution[index]) {
+                        cell.style.backgroundColor = '#e0e0e0';
+                        cell.style.color = 'black';
+                    } else {
+                        cell.style.backgroundColor = '';
+                        cell.style.color = 'red';
+                    }
+                }
+            });
+        });
 
         // Add check cell button
         const checkCellButton = document.createElement('button');
