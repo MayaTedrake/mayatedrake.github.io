@@ -117,6 +117,136 @@
         }
 
         // Call our function when the page loads
-        createGrid();    </script>
+        createGrid();
+
+        // Function to randomly hide cells
+        function hideRandomCells() {
+            const cells = document.querySelectorAll('.cell'); // Fixed selector to match actual class
+            const numCellsToHide = Math.floor(Math.random() * 40) + 30; // Hide between 30-70 cells
+            
+            // Create array of cell indices and shuffle it
+            let indices = Array.from({length: 81}, (_, i) => i);
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+            }
+            
+            // First make all cells gray since they're filled
+            cells.forEach(cell => {
+                cell.style.backgroundColor = '#e0e0e0';
+            });
+            
+            // Hide the first numCellsToHide cells from shuffled array
+            for (let i = 0; i < numCellsToHide; i++) {
+                const cell = cells[indices[i]];
+                cell.textContent = '';
+                cell.contentEditable = true;
+                cell.style.backgroundColor = 'white'; // Reset hidden cells to white
+            }
+        }
+
+        // Call after grid creation
+        setTimeout(hideRandomCells, 100);
+        
+
+        // Add check cell button
+        const checkCellButton = document.createElement('button');
+        checkCellButton.textContent = 'Check Cell';
+        checkCellButton.style.display = 'block';
+        checkCellButton.style.margin = '20px auto';
+        document.body.appendChild(checkCellButton);
+
+        let checkCellModeActive = false;
+
+        checkCellButton.addEventListener('click', () => {
+            checkCellModeActive = !checkCellModeActive;
+            checkCellButton.style.backgroundColor = checkCellModeActive ? '#ffcccc' : '';
+            checkCellButton.textContent = checkCellModeActive ? 'Cancel Check Cell' : 'Check Cell';
+        });
+
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.addEventListener('click', () => {
+                if (checkCellModeActive) {
+                    const cellIndex = Array.from(document.querySelectorAll('.cell')).indexOf(cell);
+                    if (cell.textContent === solution[cellIndex]) {
+                        cell.style.backgroundColor = '#e0e0e0';
+                        cell.style.color = 'black';
+                    } else {
+                        cell.style.backgroundColor = '';
+                        cell.style.color = 'red';
+                    }
+                    checkCellModeActive = false;
+                    checkCellButton.style.backgroundColor = '';
+                    checkCellButton.textContent = 'Check Cell';
+                }
+            });
+        });
+        // Add check button
+        const checkButton = document.createElement('button');
+        checkButton.textContent = 'Check Solution';
+        checkButton.style.display = 'block';
+        checkButton.style.margin = '20px auto';
+        document.body.appendChild(checkButton);
+
+        // Store original solution
+        const solution = Array.from(document.querySelectorAll('.cell')).map(cell => cell.textContent);
+
+        checkButton.addEventListener('click', () => {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                if (cell.textContent !== solution[index] && cell.textContent !== '') {
+                    cell.style.color = 'red';
+                } else {
+                    cell.style.color = 'black';
+                }
+            });
+        });
+
+        // Add show cell button
+        const showButton = document.createElement('button');
+        showButton.textContent = 'Show Cell';
+        showButton.style.display = 'block';
+        showButton.style.margin = '20px auto';
+        document.body.appendChild(showButton);
+
+        let showModeActive = false;
+
+        showButton.addEventListener('click', () => {
+            showModeActive = !showModeActive;
+            showButton.style.backgroundColor = showModeActive ? '#ffcccc' : '';
+            showButton.textContent = showModeActive ? 'Cancel Show' : 'Show Cell';
+        });
+
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.addEventListener('click', () => {
+                if (showModeActive) {
+                    const cellIndex = Array.from(document.querySelectorAll('.cell')).indexOf(cell);
+                    cell.textContent = solution[cellIndex];
+                    cell.style.color = 'black';
+                    cell.style.backgroundColor = '#e0e0e0';
+                    showModeActive = false;
+                    showButton.style.backgroundColor = '';
+                    showButton.textContent = 'Show Cell';
+                }
+            });
+        });
+
+        // Add show solution button
+        const showSolutionButton = document.createElement('button');
+        showSolutionButton.textContent = 'Show Solution';
+        showSolutionButton.style.display = 'block';
+        showSolutionButton.style.margin = '20px auto';
+        document.body.appendChild(showSolutionButton);
+
+        showSolutionButton.addEventListener('click', () => {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = solution[index];
+                cell.style.color = 'black';
+                cell.style.backgroundColor = '#e0e0e0';
+            });
+        });
+        
+    </script>
 </body>
 </html>
