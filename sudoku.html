@@ -153,9 +153,22 @@
         // Call after grid creation
         setTimeout(hideRandomCells, 100);
         
+        // Add instructions div
+        const instructionsDiv = document.createElement('div');
+        instructionsDiv.style.margin = '20px auto';
+        instructionsDiv.style.maxWidth = '600px';
+        instructionsDiv.style.textAlign = 'center';
+        instructionsDiv.style.padding = '10px';
+        instructionsDiv.style.backgroundColor = '#f0f0f0';
+        instructionsDiv.style.borderRadius = '5px';
+        instructionsDiv.innerHTML = 
+            '<p><strong>Instructions:</strong><br>' +
+            'When Auto Check is on, you have to press return to get a new answer otherwise it will stay red.<br>' + 
+            'After you have Checked the Cell or Solution, the next written number will stay red until you check again.</p>';
+        document.body.appendChild(instructionsDiv);
         // Add auto check button
         const autoCheckButton = document.createElement('button');
-        autoCheckButton.textContent = 'Toggle Auto Check';
+        autoCheckButton.textContent = 'Auto Check: Off';
         autoCheckButton.style.display = 'block';
         autoCheckButton.style.margin = '20px auto';
         document.body.appendChild(autoCheckButton);
@@ -164,21 +177,24 @@
 
         autoCheckButton.addEventListener('click', () => {
             autoCheckEnabled = !autoCheckEnabled;
-            autoCheckButton.style.backgroundColor = autoCheckEnabled ? '#ffcccc' : '';
-            autoCheckButton.textContent = autoCheckEnabled ? 'Auto Check ON' : 'Toggle Auto Check';
+            autoCheckButton.textContent = autoCheckEnabled ? 'Auto Check: On' : 'Auto Check: Off';
+            autoCheckButton.style.backgroundColor = autoCheckEnabled ? 'yellow' : '';
+            autoCheckButton.style.color = autoCheckEnabled ? 'red' : '';
         });
 
-        document.querySelectorAll('.cell').forEach((cell, index) => {
+        // Add input event listener for auto checking
+        document.querySelectorAll('.cell').forEach(cell => {
             cell.addEventListener('input', () => {
                 if (autoCheckEnabled) {
-                    if (cell.textContent === '') {
-                        cell.style.backgroundColor = 'white';
-                        cell.style.color = 'black';
-                    } else if (cell.textContent === solution[index]) {
+                    const cellIndex = Array.from(document.querySelectorAll('.cell')).indexOf(cell);
+                    const userAnswer = cell.textContent;
+                    const correctAnswer = solution[cellIndex];
+                    if (userAnswer == correctAnswer) {
                         cell.style.backgroundColor = '#e0e0e0';
                         cell.style.color = 'black';
-                    } else {
-                        cell.style.backgroundColor = '';
+                    } else if (userAnswer != '') {
+                        console.log("autocheck: setting to red");
+                        cell.style.backgroundColor = 'white'; 
                         cell.style.color = 'red';
                     }
                 }
@@ -205,22 +221,21 @@
                 if (checkCellModeActive) {
                     const cellIndex = Array.from(document.querySelectorAll('.cell')).indexOf(cell);
                     if (cell.textContent === solution[cellIndex]) {
+                        console.log("checkcell: setting to black");
                         cell.style.backgroundColor = '#e0e0e0';
                         cell.style.color = 'black';
                     } else {
+                        console.log("checkcell: setting to red");
                         cell.style.backgroundColor = '';
                         cell.style.color = 'red';
                     }
+                    
                     checkCellModeActive = false;
                     checkCellButton.style.backgroundColor = '';
                     checkCellButton.textContent = 'Check Cell';
                 }
             });
 
-            // Add input event listener to reset text color to black
-            cell.addEventListener('input', () => {
-                cell.style.color = 'black';
-            });
         });
 
         // Add check button
@@ -240,9 +255,11 @@
                     // Leave blank cells as is
                     cell.style.backgroundColor = 'white';
                 } else if (cell.textContent !== solution[index]) {
+                    console.log("check: setting to red");
                     cell.style.color = 'red';
                     cell.style.backgroundColor = 'white'; // Keep incorrect cells white
                 } else {
+                    console.log("check: setting to black");
                     cell.style.color = 'black';
                     // Only change background if it's a filled cell
                     if (solution[index] !== '') {
@@ -274,6 +291,7 @@
                 if (showModeActive) {
                     const cellIndex = Array.from(document.querySelectorAll('.cell')).indexOf(cell);
                     cell.textContent = solution[cellIndex];
+                    console.log("show: setting to black");
                     cell.style.color = 'black';
                     cell.style.backgroundColor = '#e0e0e0';
                     showModeActive = false;
@@ -294,6 +312,7 @@
             const cells = document.querySelectorAll('.cell');
             cells.forEach((cell, index) => {
                 cell.textContent = solution[index];
+                console.log("showsolution: setting to black");
                 cell.style.color = 'black';
                 cell.style.backgroundColor = '#e0e0e0';
             });
