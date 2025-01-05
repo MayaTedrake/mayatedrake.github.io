@@ -194,10 +194,14 @@
         checkButton.addEventListener('click', () => {
             const cells = document.querySelectorAll('.cell');
             cells.forEach((cell, index) => {
-                if (cell.textContent !== solution[index] && cell.textContent !== '') {
+                if (cell.textContent === '') {
+                    // Leave blank cells as is
+                    cell.style.backgroundColor = 'white';
+                } else if (cell.textContent !== solution[index]) {
                     cell.style.color = 'red';
                 } else {
                     cell.style.color = 'black';
+                    cell.style.backgroundColor = '#e0e0e0';
                 }
             });
         });
