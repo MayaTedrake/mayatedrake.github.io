@@ -144,7 +144,12 @@
                 cell.style.backgroundColor = 'white'; // Reset hidden cells to white
             }
         }
+        // Set font for all cells
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.style.fontFamily = 'Arial, sans-serif';
+        });
 
+        
         // Call after grid creation
         setTimeout(hideRandomCells, 100);
         
@@ -211,7 +216,13 @@
                     checkCellButton.textContent = 'Check Cell';
                 }
             });
+
+            // Add input event listener to reset text color to black
+            cell.addEventListener('input', () => {
+                cell.style.color = 'black';
+            });
         });
+
         // Add check button
         const checkButton = document.createElement('button');
         checkButton.textContent = 'Check Solution';
@@ -230,9 +241,15 @@
                     cell.style.backgroundColor = 'white';
                 } else if (cell.textContent !== solution[index]) {
                     cell.style.color = 'red';
+                    cell.style.backgroundColor = 'white'; // Keep incorrect cells white
                 } else {
                     cell.style.color = 'black';
-                    cell.style.backgroundColor = '#e0e0e0';
+                    // Only change background if it's a filled cell
+                    if (solution[index] !== '') {
+                        cell.style.backgroundColor = '#e0e0e0';
+                    } else {
+                        cell.style.backgroundColor = 'white';
+                    }
                 }
             });
         });
@@ -282,6 +299,111 @@
             });
         });
         
+        // Add comment button
+        const commentButton = document.createElement('button');
+        commentButton.textContent = 'Note Mode';
+        commentButton.style.display = 'block';
+        commentButton.style.margin = '20px auto';
+        document.body.appendChild(commentButton);
+
+        let commentModeActive = false;
+        let cellNotes = new Array(81).fill('');
+        let mainNumbers = new Array(81).fill('');
+
+        // Store initial filled numbers
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach((cell, index) => {
+            if (cell.textContent) {
+                mainNumbers[index] = cell.textContent;
+            }
+        });
+
+        // Function to position numbers in grid format
+        function formatNotes(notes) {
+            let grid = [
+                ['&nbsp;', '&nbsp;', '&nbsp;'],
+                ['&nbsp;', '&nbsp;', '&nbsp;'],
+                ['&nbsp;', '&nbsp;', '&nbsp;']
+            ];
+            
+            // Map of number to its fixed position
+            const positions = {
+                '1': [0, 0], '2': [0, 1], '3': [0, 2],
+                '4': [1, 0], '5': [1, 1], '6': [1, 2],
+                '7': [2, 0], '8': [2, 1], '9': [2, 2]
+            };
+
+            // Place each number in its designated position
+            [...notes].forEach(num => {
+                const [row, col] = positions[num];
+                grid[row][col] = num;
+            });
+
+            // Convert grid to HTML with consistent spacing
+            return `<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0px; text-align: center;">
+                ${grid.flat().map(n => `<div>${n}</div>`).join('')}
+            </div>`;
+        }
+
+        commentButton.addEventListener('click', () => {
+            commentModeActive = !commentModeActive;
+            commentButton.style.backgroundColor = commentModeActive ? '#ffcccc' : '';
+            commentButton.textContent = commentModeActive ? 'Cancel Note Mode' : 'Note Mode';
+
+            // Switch display between notes and main numbers
+            cells.forEach((cell, index) => {
+                // Skip cells that were initially filled
+                if (!mainNumbers[index] || mainNumbers[index] === '') {
+                    if (commentModeActive) {
+                        cell.innerHTML = formatNotes(cellNotes[index]);
+                        cell.style.fontSize = '10px';
+                        cell.style.fontFamily = 'monospace';
+                    } else {
+                        cell.innerHTML = mainNumbers[index];
+                        cell.style.fontSize = '24px';
+                        cell.style.fontFamily = 'Arial';
+                    }
+                }
+            });
+        });
+
+        // Handle number input for both modes
+        cells.forEach((cell, index) => {
+            cell.addEventListener('keydown', (event) => {
+                // Skip cells that were initially filled
+                if (mainNumbers[index] && cell.style.backgroundColor === '#e0e0e0') {
+                    event.preventDefault();
+                    return;
+                }
+
+                if (event.key >= '1' && event.key <= '9') {
+                    event.preventDefault();
+                    if (commentModeActive) {
+                        // Handle notes mode
+                        let currentNotes = cellNotes[index] || '';
+                        if (currentNotes.includes(event.key)) {
+                            // Remove number if already in notes
+                            currentNotes = currentNotes.replace(event.key, '');
+                        } else {
+                            // Add number to notes
+                            currentNotes += event.key;
+                            // Sort numbers for consistency
+                            currentNotes = [...currentNotes].sort().join('');
+                        }
+                        cellNotes[index] = currentNotes;
+                        cell.innerHTML = formatNotes(currentNotes);
+                        cell.style.fontSize = '10px';
+                        cell.style.fontFamily = 'monospace';
+                    } else {
+                        // Handle normal number input
+                        cell.innerHTML = event.key;
+                        mainNumbers[index] = event.key;
+                        cell.style.fontSize = '24px';
+                        cell.style.fontFamily = 'Arial';
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
