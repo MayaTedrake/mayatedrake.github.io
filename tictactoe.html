@@ -35,6 +35,29 @@
             border-radius: 5px;
             width: min(304px, 60vw);
         }
+        .mode-button {
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .mode-button.active {
+            background-color: #e0e0e0;
+            border: 2px solid black;
+        }
+        .mode-button.inactive {
+            background-color: white;
+            border: 2px solid black;
+        }
+        #playAgainBtn {
+            border: none;
+            background-color: #f0f0f0;
+        }
+        #playAgainBtn:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 
@@ -57,7 +80,62 @@
                     window.onload = function() {
                         const cells = document.querySelectorAll('.cell');
                         const turnDisplay = document.getElementById('turn-display');
+                        let isSinglePlayer = true;
+                        let isPlayerOneTurn = true;
                         
+                        // Get mode buttons
+                        const singlePlayerBtn = document.getElementById('singlePlayerBtn');
+                        const twoPlayerBtn = document.getElementById('twoPlayerBtn');
+                        const playAgainBtn = document.getElementById('playAgainBtn');
+
+                        function resetGame() {
+                            cells.forEach(cell => {
+                                cell.textContent = '';
+                            });
+                            isPlayerOneTurn = true;
+                            if (isSinglePlayer) {
+                                const firstPlayer = Math.random() < 0.5 ? 'You' : 'Computer';
+                                turnDisplay.textContent = firstPlayer === 'Computer' ? 
+                                    "Computer starts first!" : "Your turn!";
+                                
+                                if (firstPlayer === 'Computer') {
+                                    setTimeout(() => {
+                                        const randomCell = Math.floor(Math.random() * 9);
+                                        cells[randomCell].textContent = 'X';
+                                        turnDisplay.textContent = "Your turn!";
+                                    }, 1000);
+                                }
+                            } else {
+                                turnDisplay.textContent = "Player One's turn!";
+                            }
+                        }
+
+                        // Mode switching handlers
+                        singlePlayerBtn.addEventListener('click', () => {
+                            if (!isSinglePlayer) {
+                                isSinglePlayer = true;
+                                singlePlayerBtn.classList.add('active');
+                                singlePlayerBtn.classList.remove('inactive');
+                                twoPlayerBtn.classList.add('inactive');
+                                twoPlayerBtn.classList.remove('active');
+                                resetGame();
+                            }
+                        });
+
+                        twoPlayerBtn.addEventListener('click', () => {
+                            if (isSinglePlayer) {
+                                isSinglePlayer = false;
+                                twoPlayerBtn.classList.add('active');
+                                twoPlayerBtn.classList.remove('inactive');
+                                singlePlayerBtn.classList.add('inactive');
+                                singlePlayerBtn.classList.remove('active');
+                                resetGame();
+                            }
+                        });
+
+                        // Play Again handler
+                        playAgainBtn.addEventListener('click', resetGame);
+
                         function checkWin(symbol) {
                             const lines = [
                                 [0,1,2], [3,4,5], [6,7,8], // Rows
@@ -96,15 +174,12 @@
                         }
 
                         function computerMove() {
-                            // First try to win
                             let moveIndex = checkWinningMove('X');
                             
-                            // If no winning move, try to block opponent
                             if (moveIndex === -1) {
                                 moveIndex = checkWinningMove('O');
                             }
                             
-                            // If no blocking needed, make random move
                             if (moveIndex === -1) {
                                 const emptyCells = Array.from(cells).filter(c => !c.textContent);
                                 if (emptyCells.length > 0) {
@@ -116,54 +191,67 @@
                             return moveIndex;
                         }
 
-                        const firstPlayer = Math.random() < 0.5 ? 'You' : 'Computer';
-                        turnDisplay.textContent = firstPlayer === 'Computer' ? 
-                            "Computer starts first!" : "Your turn!";
-                        
-                        if (firstPlayer === 'Computer') {
-                            setTimeout(() => {
-                                const randomCell = Math.floor(Math.random() * 9);
-                                cells[randomCell].textContent = 'X';
-                                turnDisplay.textContent = "Your turn!";
-                            }, 1000);
-                        }
+                        // Initialize single player mode as active
+                        singlePlayerBtn.classList.add('active');
+                        twoPlayerBtn.classList.add('inactive');
+                        resetGame();
 
                         cells.forEach(cell => {
                             cell.addEventListener('click', () => {
-                                if (turnDisplay.textContent === "Your turn!" && !cell.textContent) {
-                                    cell.textContent = 'O';
-                                    
-                                    if (checkWin('O')) {
-                                        turnDisplay.textContent = "You won!";
-                                        return;
-                                    }
-                                    
-                                    if (checkTie()) {
-                                        turnDisplay.textContent = "Tie!";
-                                        return;
-                                    }
-
-                                    turnDisplay.textContent = "Computer's turn!";
-                                    
-                                    // Computer's turn
-                                    setTimeout(() => {
-                                        const moveIndex = computerMove();
-                                        if (moveIndex !== -1) {
-                                            cells[moveIndex].textContent = 'X';
-                                            
-                                            if (checkWin('X')) {
-                                                turnDisplay.textContent = "Computer won!";
-                                                return;
-                                            }
-                                            
-                                            if (checkTie()) {
-                                                turnDisplay.textContent = "Tie!";
-                                                return;
-                                            }
-
-                                            turnDisplay.textContent = "Your turn!";
+                                if (isSinglePlayer) {
+                                    // Single player mode
+                                    if (turnDisplay.textContent === "Your turn!" && !cell.textContent) {
+                                        cell.textContent = 'O';
+                                        
+                                        if (checkWin('O')) {
+                                            turnDisplay.textContent = "🎉🎉🎉 You won! 🎉🎉🎉";
+                                            return;
                                         }
-                                    }, 1000);
+                                        
+                                        if (checkTie()) {
+                                            turnDisplay.textContent = "🟰🟰🟰 Tie! 🟰🟰🟰";
+                                            return;
+                                        }
+
+                                        turnDisplay.textContent = "Computer's turn!";
+                                        
+                                        setTimeout(() => {
+                                            const moveIndex = computerMove();
+                                            if (moveIndex !== -1) {
+                                                cells[moveIndex].textContent = 'X';
+                                                
+                                                if (checkWin('X')) {
+                                                    turnDisplay.textContent = "😭😭😭 Computer won! 😭😭😭";
+                                                    return;
+                                                }
+                                                
+                                                if (checkTie()) {
+                                                    turnDisplay.textContent = "Tie!";
+                                                    return;
+                                                }
+
+                                                turnDisplay.textContent = "Your turn!";
+                                            }
+                                        }, 1000);
+                                    }
+                                } else {
+                                    // Two player mode
+                                    if (!cell.textContent) {
+                                        cell.textContent = isPlayerOneTurn ? 'O' : 'X';
+                                        
+                                        if (checkWin(isPlayerOneTurn ? 'O' : 'X')) {
+                                            turnDisplay.textContent = `${isPlayerOneTurn ? 'Player One' : 'Player Two'} won!`;
+                                            return;
+                                        }
+                                        
+                                        if (checkTie()) {
+                                            turnDisplay.textContent = "Tie!";
+                                            return;
+                                        }
+
+                                        isPlayerOneTurn = !isPlayerOneTurn;
+                                        turnDisplay.textContent = `${isPlayerOneTurn ? 'Player One' : 'Player Two'}'s turn!`;
+                                    }
                                 }
                             });
                         });
@@ -173,11 +261,20 @@
         </div>
 
         <div style="background-color: #f0f0f0; padding: 20px; border-radius: 10px; width: min(300px, 80vw);">
-            <h2 style="margin-top: 0;">Instructions:</h2>
-            <ul style="padding-left: 20px;">
-            
-            </ul>
+            <h2 style="margin-top: 0; font-size: 16px; text-align: center;">Instructions:</h2>
+            <div style="font-size: 14px; text-align: center;">
+                Single Player: Choose a square when it says "Your turn!". Try to get three O's in a row!
+                <br><br>
+                Two Players: Decide who will be player one and player two. Take turns when prompted. Try to get three of your symbol in a row!
+            </div>
         </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button id="singlePlayerBtn" class="mode-button">Single Player</button>
+        <button id="twoPlayerBtn" class="mode-button">Two Players</button>
+        <br>
+        <button id="playAgainBtn" class="mode-button" style="margin-top: 10px;">Play Again</button>
     </div>
 
 </body>
